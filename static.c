@@ -1,4 +1,5 @@
 //The full program, say static.c, would look like this: 
+//This code create look up table in C base on Fs and block size
 
 #include <stdio.h> 
 #include <stdlib.h>
