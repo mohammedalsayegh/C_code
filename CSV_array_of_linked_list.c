@@ -20,10 +20,10 @@ int main(void) {
     double dif;
 
     //struct array var
-    int size,si;
+    int num_arr,arr_size;
     struct record_t *temp;
-    size=98000;
-    si=1024;
+    num_arr=98000;
+    arr_size=1024;
 
     //open the csv file
     fp = fopen("data4.csv", "r");
@@ -32,14 +32,14 @@ int main(void) {
         return 1;
     }
     
-    struct record_t *A[size];
+    struct record_t *A[num_arr];
     time (&start);
-    for(int i=0;i<size;i++){
+    for(int i=0;i<num_arr;i++){
         head = (struct record_t *)malloc(sizeof(struct record_t));
         fscanf(fp, "%d,%25s", &head->number, head->seq);
         head -> next = NULL;
         temp = head;
-        for(int j=1;j<si;j++){
+        for(int j=1;j<arr_size;j++){
             struct record_t *new = (struct record_t *)malloc(sizeof(struct record_t));
             fscanf(fp, "%d,%25s", &new->number, new->seq);
             new -> next = NULL;
