@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #define size_parsing 3
+#define size_buffer 8
 
 int main() {
 
@@ -14,7 +15,7 @@ int main() {
     unsigned int len = sizeof(arr_n);
 
     uint8_t buf = 0;
-    uint8_t bitwise_location = 8;
+    uint8_t bitwise_location = size_buffer;
     uint8_t bit_left = 0;
     uint8_t bit_fill_left = 0;
     uint8_t buf_cycle = 0;
@@ -34,7 +35,7 @@ int main() {
             printf("Value: %hhu\n", buf);
 
             buf = 0;
-            bitwise_location = 8 - (size_parsing - bit_left);
+            bitwise_location = size_buffer - (size_parsing - bit_left);
             if (!(buf_cycle % size_parsing)) buf_cycle = 0;
 
         } else {
