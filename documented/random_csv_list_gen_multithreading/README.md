@@ -34,8 +34,6 @@ The following is an example of the output of the program:
 
 The program will then generate 10 CSV files, one for each thread. Each file will contain the random data for the corresponding with option settings.
 
-Sure, here is a section explaining the code:
-
 ## Code Explanation
 
 The code is divided into two main functions: `thread_func()` and `generate_data()`.
