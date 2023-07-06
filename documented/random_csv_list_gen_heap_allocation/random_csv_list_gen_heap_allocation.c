@@ -64,30 +64,36 @@ struct Options {
 };
 
 struct Options options = {
-  .rows = 1,
-  .u64_count = 1,
-  .f64_count = 1,
-  .string_count = 1,
-  .char_count = 1,
-  .thread_count = 1,
+  .rows = 10,
+  .u64_count = 2,
+  .f64_count = 2,
+  .string_count = 2,
+  .char_count = 2,
+  .thread_count = 2,
 };
 
 void generate_data(struct Options options) {
+  // Open the CSV file.
+  FILE *fp = fopen("output.csv", "a");
 
-  // Allocate memory for the u64_values array on the heap.
-  uint64_t *u64_values = malloc(sizeof(uint64_t) * options.u64_count);
+  // Write the header to the CSV file.
+  fputs("u64, f64, string, char\n", fp);
 
-  // Allocate memory for the f64_values array on the heap.
-  double *f64_values = malloc(sizeof(double) * options.f64_count);
-
-  // Allocate memory for the string_values array on the heap.
-  char **string_values = malloc(sizeof(char *) * options.string_count);
-
-  // Allocate memory for the char_values array on the heap.
-  char *char_values = malloc(sizeof(char) * options.char_count);
-
-  // Generate random data for each row and store it in the corresponding array.
+  // Generate random data for each row.
   for (int i = 0; i < options.rows; i++) {
+    // Allocate memory for the u64_values array for the current row.
+    uint64_t *u64_values = malloc(sizeof(uint64_t) * options.u64_count);
+
+    // Allocate memory for the f64_values array for the current row.
+    double *f64_values = malloc(sizeof(double) * options.f64_count);
+
+    // Allocate memory for the string_values array for the current row.
+    char **string_values = malloc(sizeof(char *) * options.string_count);
+
+    // Allocate memory for the char_values array for the current row.
+    char *char_values = malloc(sizeof(char) * options.char_count);
+
+    // Generate random data for the current row and store it in the corresponding arrays.
     for (int j = 0; j < options.u64_count; j++) {
       u64_values[j] = rand();
     }
@@ -105,13 +111,8 @@ void generate_data(struct Options options) {
       char_values[j] = rand() % 256;
       fix_char(&char_values[j]);
     }
-  }
 
-  // Open the CSV file.
-  FILE *fp = fopen("output.csv", "a");
-
-  // Write the data to the CSV file.
-  for (int i = 0; i < options.rows; i++) {
+    // Write the data for the current row to the CSV file.
     for (int j = 0; j < options.u64_count; j++) {
       fprintf(fp, "\"%d\", ", u64_values[j]);
     }
@@ -129,25 +130,21 @@ void generate_data(struct Options options) {
       fprintf(fp, "\"%c\", ", char_values[j]);
     }
     fprintf(fp, "\n");
+
+    // Free the memory that was allocated for the current row.
+    free(u64_values);
+    free(f64_values);
+    for (int j = 0; j < options.string_count; j++) {
+      free(string_values[j]);
+    }
+    free(string_values);
+    free(char_values);
   }
 
   // Close the CSV file.
   fclose(fp);
-
-  // Free the memory that was allocated for the u64_values array.
-  free(u64_values);
-
-  // Free the memory that was allocated for the f64_values array.
-  free(f64_values);
-
-  // Free the memory that was allocated for the string_values array.
-  for (int i = 0; i < options.string_count; i++) {
-    free(string_values[i]);
-  }
-
-  // Free the memory that was allocated for the char_values array.
-  free(char_values);
 }
+
 
 int main(int argc, char *argv[]) {
 
