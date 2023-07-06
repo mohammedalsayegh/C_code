@@ -55,7 +55,8 @@ int get_number_of_cores() {
 }
 
 
-int main() {
+int main() 
+{
   int number_of_cores = get_number_of_cores();
   printf("Number of cores: %d\n", number_of_cores);
   return 0;
