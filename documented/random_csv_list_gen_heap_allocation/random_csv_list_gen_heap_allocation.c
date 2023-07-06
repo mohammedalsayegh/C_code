@@ -72,79 +72,89 @@ struct Options options = {
   .thread_count = 2,
 };
 
+struct RowData {
+  uint64_t *u64_values;
+  double *f64_values;
+  char **string_values;
+  char *char_values;
+};
+
 void generate_data(struct Options options) {
-  // Open the CSV file.
-  FILE *fp = fopen("output.csv", "a");
+  // Allocate memory for all rows of data.
+  struct RowData *rows = malloc(sizeof(struct RowData) * options.rows);
 
-  // Write the header to the CSV file.
-  fputs("u64, f64, string, char\n", fp);
-
-  // Generate random data for each row.
+  // Iterate over all rows of data.
   for (int i = 0; i < options.rows; i++) {
-    // Allocate memory for the u64_values array for the current row.
-    uint64_t *u64_values = malloc(sizeof(uint64_t) * options.u64_count);
+    // Allocate memory for the u64_values array in the current row.
+    rows[i].u64_values = malloc(sizeof(uint64_t) * options.u64_count);
 
-    // Allocate memory for the f64_values array for the current row.
-    double *f64_values = malloc(sizeof(double) * options.f64_count);
+    // Allocate memory for the f64_values array in the current row.
+    rows[i].f64_values = malloc(sizeof(double) * options.f64_count);
 
-    // Allocate memory for the string_values array for the current row.
-    char **string_values = malloc(sizeof(char *) * options.string_count);
+    // Allocate memory for the string_values array in the current row.
+    rows[i].string_values = malloc(sizeof(char *) * options.string_count);
 
-    // Allocate memory for the char_values array for the current row.
-    char *char_values = malloc(sizeof(char) * options.char_count);
+    // Allocate memory for the char_values array in the current row.
+    rows[i].char_values = malloc(sizeof(char) * options.char_count);
 
     // Generate random data for the current row and store it in the corresponding arrays.
     for (int j = 0; j < options.u64_count; j++) {
-      u64_values[j] = rand();
+      rows[i].u64_values[j] = rand();
     }
 
     for (int j = 0; j < options.f64_count; j++) {
-      f64_values[j] = (double) rand() / RAND_MAX;
+      rows[i].f64_values[j] = (double) rand() / RAND_MAX;
     }
 
     for (int j = 0; j < options.string_count; j++) {
-      string_values[j] = malloc(20);
-      rand_str(string_values[j], 20);
+      rows[i].string_values[j] = malloc(20);
+      rand_str(rows[i].string_values[j], 20);
     }
 
     for (int j = 0; j < options.char_count; j++) {
-      char_values[j] = rand() % 256;
-      fix_char(&char_values[j]);
+      rows[i].char_values[j] = rand() % 256;
+      fix_char(&rows[i].char_values[j]);
     }
+  }
 
-    // Write the data for the current row to the CSV file.
+  // Open the CSV file.
+  FILE *fp = fopen("output.csv", "a");
+
+  // Write the data for all rows to the CSV file.
+  for (int i = 0; i < options.rows; i++) {
     for (int j = 0; j < options.u64_count; j++) {
-      fprintf(fp, "\"%d\", ", u64_values[j]);
+      fprintf(fp, "\"%d\", ", rows[i].u64_values[j]);
     }
 
     for (int j = 0; j < options.f64_count; j++) {
-      fprintf(fp, "\"%f\", ", f64_values[j]);
+      fprintf(fp, "\"%f\", ", rows[i].f64_values[j]);
     }
 
     for (int j = 0; j < options.string_count; j++) {
-      // Write an empty string to the CSV file.
-      fprintf(fp, "\"%s\", ", string_values[j]);
+      fprintf(fp, "\"%s\", ", rows[i].string_values[j]);
     }
 
     for (int j = 0; j < options.char_count; j++) {
-      fprintf(fp, "\"%c\", ", char_values[j]);
+      fprintf(fp, "\"%c\", ", rows[i].char_values[j]);
     }
     fprintf(fp, "\n");
 
     // Free the memory that was allocated for the current row.
-    free(u64_values);
-    free(f64_values);
+    free(rows[i].u64_values);
+    free(rows[i].f64_values);
     for (int j = 0; j < options.string_count; j++) {
-      free(string_values[j]);
+      free(rows[i].string_values[j]);
     }
-    free(string_values);
-    free(char_values);
+    free(rows[i].string_values);
+    free(rows[i].char_values);
   }
+
+  // Free the memory that was allocated for all rows.
+  free(rows);
 
   // Close the CSV file.
   fclose(fp);
 }
-
 
 int main(int argc, char *argv[]) {
 
