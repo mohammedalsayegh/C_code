@@ -1,16 +1,6 @@
 // Name: Mohammed Hashem Alsayegh
 
-// This program generates random data and writes it to a CSV file.
-
-// The `rand_str()` function generates a random string of characters.
-// This function uses the `char charset[]` array to generate a random string of characters.
-// The `fix_char()` function replaces any characters that can mess with printf format with spaces.
-// This function uses the `const char *bad_characters` string to find any characters that need to be replaced.
-// The `struct Options` struct stores the options for the program.
-// This struct has six fields: rows, u64_count, f64_count, string_count, char_count, and thread_count.
-// The `generate_data()` function generates the random data and writes it to the CSV file.
-// This function iterates over the rows and generates random data for each row.
-// The `main()` function parses the command-line arguments, checks the validity of the arguments, prints out the value of options, and calls `generate_data()`.
+// This program generates random data alllocated it in the heap and writes it to a CSV file.
 
 #include <stdio.h>
 #include <stdlib.h>
