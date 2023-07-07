@@ -105,5 +105,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
-// ./git_clone_folder --rurl "https://github.com/mohammedalsayegh/Rust_code" --branch "main" --localdir "./tmp/clone" --folder "print_hello_color" --distance_folder "./"
