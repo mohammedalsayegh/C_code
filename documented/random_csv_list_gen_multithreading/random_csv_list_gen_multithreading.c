@@ -247,10 +247,11 @@ void generate_data(struct Options options) {
   }
 
   /* Execute the coopy all csv files into single file command line. */
-  system("cmd /c 'copy /y /b output_*.csv output.csv'");
+  system("copy /y /b output_*.csv output.csv");
 
   /* Execute delete files that were generated command line. */
-  system("rm ./output_*.csv");
+  system("dir .\\output_*.csv");
+  system("del .\\output_*.csv");
 }
 
 int main(int argc, char *argv[]) {
