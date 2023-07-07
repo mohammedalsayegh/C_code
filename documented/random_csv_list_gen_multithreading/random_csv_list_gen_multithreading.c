@@ -39,7 +39,7 @@ struct Options options = {
   .f64_count = 2,
   .string_count = 2,
   .char_count = 2,
-  .thread_count = 2,
+  .thread_count = 4,
 };
 
 int get_number_of_cores() {
