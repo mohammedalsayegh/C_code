@@ -34,12 +34,12 @@ struct Options {
 };
 
 struct Options options = {
-  .rows = 1,
-  .u64_count = 1,
-  .f64_count = 1,
-  .string_count = 1,
-  .char_count = 1,
-  .thread_count = 1,
+  .rows = 100,
+  .u64_count = 2,
+  .f64_count = 2,
+  .string_count = 2,
+  .char_count = 2,
+  .thread_count = 2,
 };
 
 int get_number_of_cores() {
