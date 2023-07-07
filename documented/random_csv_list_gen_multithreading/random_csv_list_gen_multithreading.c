@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <time.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 struct RowData {
   uint64_t *u64_values;
@@ -41,6 +42,48 @@ struct Options options = {
   .thread_count = 1,
 };
 
+int get_number_of_cores() {
+  /* This function runs the `wmic cpu get NumberOfCores /Format:List` command
+   * to get the number of cores. The function then parses the output of the
+   * command to extract the number of cores. Finally, the function returns the
+   * number of cores.
+   */
+
+  char *cmd = "wmic cpu get NumberOfCores /Format:List";
+  FILE *fp;
+  char buffer[1024];
+  int number_of_cores = 0;
+
+  /* Open the command pipe. */
+
+  fp = popen(cmd, "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n");
+    return 1;
+  }
+
+  /* Read the output of the command one line at a time. */
+
+  while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+    /* Look for the line that contains the number of cores. */
+    char *match = strstr(buffer, "NumberOfCores=");
+    if (match != NULL) {
+      /* Extract the number of cores from the line. */
+      match += strlen("NumberOfCores=");
+      number_of_cores = atoi(match);
+      break;
+    }
+  }
+
+  /* Close the command pipe. */
+
+  pclose(fp);
+
+  /* Return the number of cores. */
+
+  return number_of_cores;
+}
+
 // This function generates a random string of characters.
 // The `char charset[]` array is used to generate a random string of characters.
 char *rand_str(char *str, int len) {
@@ -58,20 +101,26 @@ char *rand_str(char *str, int len) {
 
 // This function replaces any characters that can mess with printf format with spaces.
 // The `const char *bad_characters` string is used to find any characters that need to be replaced.
-void fix_char(char *c) {
-  /* Create a regular expression that matches any characters that can mess with
-   * printf format. */
-  const char *bad_characters = "%$#@()<>{}|;:\"'\\\\";
+char fix_char(char c) {
+  /* Create a list of characters that can mess with printf format. */
+  const char bad_characters[] = "%$#@()<>{}|;:,\"'\\";
 
-  /* Replace all of the bad characters with spaces. */
-  for (int i = 0; c[i] != '\0'; i++) {
-    if (strchr(bad_characters, c[i]) != NULL) {
-      c[i] = ' ';
-    } else if (c[i] == '\'') {
-      c[i] = '\\';
-      c[i + 1] = '\'';
-      i++;
+  /* Check if the character is a bad character. */
+  bool is_bad_character = false;
+  for (int i = 0; bad_characters[i] != '\0'; i++) {
+    if (c == bad_characters[i]) {
+      is_bad_character = true;
+      break;
     }
+  }
+
+  /* If the character is a bad character, then return a space. */
+  if (is_bad_character) {
+    return ' ';
+  } else if (c == '"') {
+    return ' ';
+  } else {
+    return c;
   }
 }
 
@@ -118,8 +167,8 @@ void *thread_func(void *arg) {
     }
 
     for (int j = 0; j < options.char_count; j++) {
-      rows[i].char_values[j] = rand() % 256;
-      fix_char(&rows[i].char_values[j]);
+      char c = rand() % 256;
+      rows[i].char_values[j] = fix_char(c);
     }
   }
 
@@ -128,7 +177,7 @@ void *thread_func(void *arg) {
   sprintf(filename, "output_%lu.csv", thread_id);
 
   // Open the CSV file.
-  FILE *fp = fopen(filename, "a");
+  FILE *fp = fopen(filename, "w+");
 
   // Write the data for all rows to the CSV file.
   for (int i = 0; i < options.rows; i++) {
@@ -145,7 +194,7 @@ void *thread_func(void *arg) {
     }
 
     for (int j = 0; j < options.char_count; j++) {
-      fprintf(fp, "\"%c\", ", rows[i].char_values[j]);
+      fprintf(fp, "\"%c \", ", rows[i].char_values[j]);
     }
     fprintf(fp, "\n");
 
@@ -196,6 +245,12 @@ void generate_data(struct Options options) {
   for (int i = 0; i < num_threads; i++) {
     printf("Thread %d exited with status %d\n", i, status[i].exit_code);
   }
+
+  /* Execute the coopy all csv files into single file command line. */
+  system("cmd /c 'copy /y /b output_*.csv output.csv'");
+
+  /* Execute delete files that were generated command line. */
+  system("rm ./output_*.csv");
 }
 
 int main(int argc, char *argv[]) {
@@ -219,12 +274,12 @@ int main(int argc, char *argv[]) {
   }
 
   // Check to make sure that the user has provided valid command-line arguments.
-  assert(options.rows > 0 && options.rows <= UINT32_MAX);
-  assert(options.u64_count > 0 && options.u64_count <= UINT32_MAX);
-  assert(options.f64_count > 0 && options.f64_count <= UINT32_MAX);
-  assert(options.string_count > 0 && options.string_count <= UINT32_MAX);
-  assert(options.char_count > 0 && options.char_count <= UINT32_MAX);
-  assert(options.thread_count > 0 && options.thread_count <= UINT32_MAX);
+  assert(options.rows >= 0 && options.rows <= UINT32_MAX);
+  assert(options.u64_count >= 0 && options.u64_count <= UINT32_MAX);
+  assert(options.f64_count >= 0 && options.f64_count <= UINT32_MAX);
+  assert(options.string_count >= 0 && options.string_count <= UINT32_MAX);
+  assert(options.char_count >= 0 && options.char_count <= UINT32_MAX);
+  assert(options.thread_count > 0 && options.thread_count <= get_number_of_cores());
 
   // Print out the value of options.
   printf("rows: %d\n", options.rows);
