@@ -101,6 +101,17 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
+  char response[10];
+  printf("WARNING: This command may delete files. Are you sure you want to continue? (yes/no)\n");
+  scanf("%s", response);
+
+  if (strcmp(response, "yes") == 0) {
+    printf("Continuing...\n");
+  } else {
+    printf("Aborting...\n");
+    return 0;
+  }
+
   git_sparse_clone_folder(args.rurl, args.branch, args.localdir, args.folder, args.distance_folder);
 
   return 0;
